@@ -179,7 +179,7 @@ export default function SignUp() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.8 }}
             >
-              Join Artisan Studio
+              Join Artisian Studio
             </motion.h1>
 
             <motion.p

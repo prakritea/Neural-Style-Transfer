@@ -363,8 +363,8 @@ function ImageUpload({
     >
       <Card
         className={`relative overflow-hidden border-2 transition-all duration-300 cursor-pointer ${isDragActive
-            ? "border-primary/80 shadow-2xl shadow-primary/30 scale-105"
-            : "border-dashed border-primary/30 hover:border-primary/60 hover:shadow-2xl hover:shadow-primary/20 hover:scale-105"
+          ? "border-primary/80 shadow-2xl shadow-primary/30 scale-105"
+          : "border-dashed border-primary/30 hover:border-primary/60 hover:shadow-2xl hover:shadow-primary/20 hover:scale-105"
           } ${gradient}`}
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
@@ -553,7 +553,7 @@ function FeaturesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Why Choose Artisan Studio?
+            Why Choose Artisian Studio?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             State-of-the-art AI technology meets artistic vision
@@ -665,8 +665,8 @@ function QuotesCarousel() {
             key={index}
             onClick={() => setCurrentQuote(index)}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentQuote
-                ? "bg-primary w-8"
-                : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
+              ? "bg-primary w-8"
+              : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
               }`}
           />
         ))}
@@ -802,8 +802,8 @@ function ImageCarousel() {
               key={index}
               onClick={() => setCurrentImage(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentImage
-                  ? "bg-white w-8"
-                  : "bg-white/40 hover:bg-white/70"
+                ? "bg-white w-8"
+                : "bg-white/40 hover:bg-white/70"
                 }`}
             />
           ))}
@@ -1205,8 +1205,8 @@ export default function Index() {
                   onClick={generateArtwork}
                   disabled={!canProcess || isProcessing}
                   className={`px-12 py-6 text-xl font-bold transition-all duration-500 shadow-2xl ${canProcess && !isProcessing
-                      ? "bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] hover:bg-[position:100%_0] text-white shadow-primary/25 hover:shadow-accent/25"
-                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                    ? "bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] hover:bg-[position:100%_0] text-white shadow-primary/25 hover:shadow-accent/25"
+                    : "bg-muted text-muted-foreground cursor-not-allowed"
                     }`}
                 >
                   {isProcessing ? (
@@ -1480,8 +1480,8 @@ export default function Index() {
                               >
                                 <Star
                                   className={`w-6 h-6 transition-colors ${star <= reviewData.rating
-                                      ? "fill-yellow-400 text-yellow-400"
-                                      : "text-muted-foreground"
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-muted-foreground"
                                     }`}
                                 />
                               </button>
@@ -1493,7 +1493,7 @@ export default function Index() {
                           <Label htmlFor="review">Your Review</Label>
                           <Textarea
                             id="review"
-                            placeholder="Tell us about your experience with Artisan Studio..."
+                            placeholder="Tell us about your experience with Artisian Studio..."
                             value={reviewData.text}
                             onChange={(e) =>
                               setReviewData({
@@ -1547,7 +1547,7 @@ export default function Index() {
                 <div>
                   <h4 className="font-bold text-foreground mb-4 flex items-center space-x-2">
                     <Sparkles className="w-5 h-5 text-primary" />
-                    <span>Artisan Studio</span>
+                    <span>Artisian Studio</span>
                   </h4>
                   <p className="text-sm text-muted-foreground">
                     AI-powered style transfer for creative artists
@@ -1581,7 +1581,7 @@ export default function Index() {
 
               <div className="border-t border-border/50 pt-8 text-center text-muted-foreground text-sm">
                 <p>
-                  Powered by AI • Built with passion for digital art • © 2024 Artisan Studio
+                  Powered by AI • Built with passion for digital art • © 2024 Artisian Studio
                 </p>
               </div>
             </div>

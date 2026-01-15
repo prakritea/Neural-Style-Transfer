@@ -1,6 +1,6 @@
-# Echo Forge - Neural Style Transfer
+# Artisian Studio - Neural Style Transfer
 
-Echo Forge is a modern web application that allows users to perform AI-powered Neural Style Transfer on their images. Users can upload a "content" image and a "style" image to generate a unique piece of artwork.
+Artisian Studio is a modern web application that allows users to perform AI-powered Neural Style Transfer on their images. Users can upload a "content" image and a "style" image to generate a unique piece of artwork.
 
 ## Features
 
