@@ -1,72 +1,75 @@
-# Artisian Studio - Neural Style Transfer
+<div align="center">
 
-Artisian Studio is a modern web application that allows users to perform AI-powered Neural Style Transfer on their images. Users can upload a "content" image and a "style" image to generate a unique piece of artwork.
+# ✨ Artisian Studio
 
-## Features
+### *Where Neural Networks Meet Artistic Vision*
 
-- **Neural Style Transfer**: Blends the artistic style of one image into another.
-- **User Authentication**: Secure sign-up and login system using JWT and password hashing (bcrypt).
-- **Route Protection**: Browsing the application requires being logged in.
-- **Modern UI**: Built with React, Tailwind CSS, and Framer Motion for smooth animations and a premium feel.
-- **FastAPI Backend**: High-performance Python backend for image processing and user management.
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 
-## Tech Stack
+**Artisian Studio** is a premium, AI-powered sanctuary where your images transform into high-fidelity masterpieces. Leveraging state-of-the-art Neural Style Transfer and ESRGAN Super-Resolution, we breathe life into pixels.
 
-- **Frontend**: React, Vite, Tailwind CSS, Framer Motion, Lucide Icons.
-- **Backend**: Python, FastAPI, Uvicorn, Pillow (for image processing), Passlib (for auth).
-- **Database**: Local JSON storage (for users).
+[Explore the Magic](#-features) • [Quick Start](#-installation) • [Divine Tech](#-divine-tech-stack)
 
-## Getting Started
+</div>
 
-### Prerequisites
+---
 
-- Node.js (v18+)
-- Python (v3.9+)
-- pip (Python package manager)
+## 🎨 Features
 
-### Installation
+- **🎭 Neural Stylization**: Seamlessly blend the essence of master painters with your own photographs.
+- **🚀 Ultra-HD 4K Export**: Every creation is upscaled using **ESRGAN** for sharp, professional-grade results.
+- **🔒 Secure Sanctuary**: Robust JWT authentication ensures your creative gallery remains private.
+- **✨ Ethereal UI**: A mesmerizing 3D interface built with Three.js and Framer Motion.
+- **⚡ Proactive Performance**: Optimized models that pre-load for instant creative gratification.
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/prakritea/Neural-Style-Transfer.git
-   cd Neural-Style-Transfer
-   ```
+---
 
-2. **Frontend Setup**:
-   ```bash
-   npm install
-   ```
+## 🛠️ Divine Tech Stack
 
-3. **Backend Setup**:
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   ```
+- **The Vision**: `React 18`, `Tailwind CSS`, `Framer Motion`
+- **The Soul**: `Python 3.9`, `FastAPI`, `Uvicorn`
+- **The Brain**: `TensorFlow Hub` (Magenta + ESRGAN)
+- **The Memory**: `JWT`, `Bcrypt`, `JSON Persistent Storage`
 
-### Running the Application
+---
 
-1. **Start the Backend**:
-   From the `backend` directory:
-   ```bash
-   python -m uvicorn main:app --reload --port 8000
-   ```
-   The backend will be available at `http://localhost:8000`.
+## ⚡ Quick Start
 
-2. **Start the Frontend**:
-   From the project root:
-   ```bash
-   npm run dev
-   ```
-   The frontend will be available at `http://localhost:8080`.
+### 1. Summon the Source
+```bash
+git clone https://github.com/prakritea/Neural-Style-Transfer.git
+cd Neural-Style-Transfer
+```
 
-## How to use
+### 2. Prepare the Canvas (Frontend)
+```bash
+npm install
+npm run dev
+# Dashboard at http://localhost:8080
+```
 
-1. Open the website and create an account via the **Sign Up** page.
-2. **Log In** with your credentials.
-3. Upload a **Content Image** (the image you want to change).
-4. Upload a **Style Image** (the artistic style you want to apply).
-5. Click **Generate Artwork** to see the result!
+### 3. Awaken the Brain (Backend)
+```bash
+cd backend
+pip install -r requirements.txt
+python3 -m uvicorn main:app --reload --port 8000
+# Neural API at http://localhost:8000
+```
 
-## License
+---
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📖 The Creative Flow
+
+1. **Enter the Studio**: Sign Up and Log In to your personal creative core.
+2. **Select Content**: Upload the photograph you wish to transform.
+3. **Impose Style**: Upload the artistic vision (style) you want to apply.
+4. **Alchemize**: Click **Generate Artwork** and wait for the AI to composite your 4K masterpiece.
+
+---
+
+<div align="center">
+Built with passion for digital art 🎨✨
+</div>

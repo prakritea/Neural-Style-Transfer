@@ -1,11 +1,16 @@
 from fastapi import FastAPI, UploadFile, File, Response, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from style_transfer import apply_style_transfer
+from style_transfer import apply_style_transfer, load_models
 from auth import signup_user, authenticate_user, create_access_token
 import uvicorn
 
 app = FastAPI()
+
+# Pre-load AI models on startup to avoid delays during the first request
+@app.on_event("startup")
+async def startup_event():
+    load_models()
 
 # Enable CORS for frontend communication
 app.add_middleware(

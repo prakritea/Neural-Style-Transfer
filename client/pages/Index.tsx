@@ -906,6 +906,7 @@ export default function Index() {
     rating: 5,
     text: "",
   });
+  const [resetKey, setResetKey] = useState(0);
 
   // Camera states
   const [showCamera, setShowCamera] = useState(false);
@@ -1170,6 +1171,7 @@ export default function Index() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
               <ImageUpload
+                key={`your-${resetKey}`}
                 title="Your Image"
                 icon={<ImageIcon className="w-8 h-8 text-primary" />}
                 onImageUpload={handleImageUpload("your")}
@@ -1178,6 +1180,7 @@ export default function Index() {
               />
 
               <ImageUpload
+                key={`style-${resetKey}`}
                 title="Style Image"
                 icon={<Zap className="w-8 h-8 text-accent" />}
                 onImageUpload={handleImageUpload("style")}
@@ -1277,6 +1280,9 @@ export default function Index() {
                         setGeneratedImage(null);
                         setYourImage(null);
                         setStyleImage(null);
+                        setYourFile(null);
+                        setStyleFile(null);
+                        setResetKey((prev) => prev + 1);
                       }}
                       variant="outline"
                     >
