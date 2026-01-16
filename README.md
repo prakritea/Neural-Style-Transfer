@@ -11,7 +11,9 @@
 
 **Artisian Studio** is a premium, AI-powered sanctuary where your images transform into high-fidelity masterpieces. Leveraging state-of-the-art Neural Style Transfer and ESRGAN Super-Resolution, we breathe life into pixels.
 
-[Explore the Magic](#-features) • [Quick Start](#-installation) • [Divine Tech](#-divine-tech-stack)
+![Artisian Studio Banner](./public/screenshots/banner.png)
+
+[Explore the Magic](#-the-magic-behind-the-code) • [Quick Start](#-installation) • [Divine Tech](#-divine-tech-stack)
 
 </div>
 
@@ -27,12 +29,30 @@
 
 ---
 
+## 🧠 The Magic Behind the Code
+
+Artisian Studio utilizes a sophisticated **Two-Stage AI Pipeline** to ensure that artistic beauty meets technical precision.
+
+### 🎭 Stage 1: Arbitrary Image Stylization (Google Magenta)
+At its core, we use Google's **Magenta Arbitrary Image Stylization** model. Unlike traditional filters that simply overlay colors, this neural network:
+- **Semantic Interpretation**: Analyzes the high-level semantic features of both the content and style images.
+- **Neural Synthesis**: Reconstructs the content image from scratch using the specific brush strokes, textures, and geometry of the style image.
+- **Dynamic Mastery**: Can apply *any* artistic style to *any* image in seconds, providing infinite creative possibilities.
+
+### 🚀 Stage 2: 4K Super-Resolution (ESRGAN)
+Neural stylization often results in soft edges or low resolution. To deliver a premium product, we pass every stylized image through **ESRGAN** (Enhanced Super-Resolution Generative Adversarial Networks):
+- **4x Upscaling**: Mathematically enhances the image resolution by 400%.
+- **Pattern Sharpening**: Uses a discriminator network to "invent" realistic detail where data was lost, resulting in crisp, high-definition 4K masterpieces.
+- **Clarity**: Ensures that even the most abstract textures remain sharp and professional-grade.
+
+---
+
 ## 🛠️ Divine Tech Stack
 
 - **The Vision**: `React 18`, `Tailwind CSS`, `Framer Motion`
 - **The Soul**: `Python 3.9`, `FastAPI`, `Uvicorn`
-- **The Brain**: `TensorFlow Hub` (Magenta + ESRGAN)
-- **The Memory**: `JWT`, `Bcrypt`, `JSON Persistent Storage`
+- **The Brain**: `TensorFlow Hub` (Google Magenta + ESRGAN)
+- **The Memory**: `JWT Auth`, `Bcrypt`, `JSON Persistent Storage`
 
 ---
 
@@ -63,7 +83,7 @@ python3 -m uvicorn main:app --reload --port 8000
 
 ## 📖 The Creative Flow
 
-1. **Enter the Studio**: Sign Up and Log In to your personal creative core.
+1. **Enter the Studio**: Sign Up and Log In to your personal creative sanctuary.
 2. **Select Content**: Upload the photograph you wish to transform.
 3. **Impose Style**: Upload the artistic vision (style) you want to apply.
 4. **Alchemize**: Click **Generate Artwork** and wait for the AI to composite your 4K masterpiece.
