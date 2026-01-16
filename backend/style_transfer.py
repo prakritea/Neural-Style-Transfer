@@ -1,106 +1,99 @@
 import io
 import time
 import numpy as np
-import cv2
+import tensorflow as tf
+import tensorflow_hub as hub
 from PIL import Image
+
+# Global variables to store models for reuse across requests
+STYLE_MODEL = None
+SUPER_RES_MODEL = None
+
+def load_models():
+    """Lazy-load the AI models to save memory during startup."""
+    global STYLE_MODEL, SUPER_RES_MODEL
+    if STYLE_MODEL is None:
+        start_time = time.time()
+        print("Loading Magenta Style Transfer model...")
+        STYLE_MODEL = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2')
+        print(f"Magenta model loaded in {time.time() - start_time:.2f}s")
+        
+    if SUPER_RES_MODEL is None:
+        start_time = time.time()
+        print("Loading ESRGAN Super Resolution model...")
+        SUPER_RES_MODEL = hub.load('https://tfhub.dev/captain-pool/esrgan-tf2/1')
+        print(f"ESRGAN model loaded in {time.time() - start_time:.2f}s")
+
+def preprocess_image(image_bytes, target_dim=None, max_dim=None):
+    """
+    Loads and prepares an image for model input.
+    Optionally resizes to target_dim or caps to max_dim while maintaining aspect ratio.
+    """
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    
+    if max_dim:
+        # Cap resolution while maintaining aspect ratio
+        w, h = img.size
+        if max(w, h) > max_dim:
+            if w > h:
+                new_w = max_dim
+                new_h = int(h * (max_dim / w))
+            else:
+                new_h = max_dim
+                new_w = int(w * (max_dim / h))
+            print(f"Capping resolution from {w}x{h} to {new_w}x{new_h}")
+            img = img.resize((new_w, new_h), Image.LANCZOS)
+    
+    if target_dim:
+        img = img.resize(target_dim, Image.LANCZOS)
+        
+    img_array = np.array(img).astype(np.float32)
+    # Add batch dimension and normalize to [0, 1]
+    return img_array[np.newaxis, ...] / 255.0
 
 def apply_style_transfer(content_image_bytes, style_image_bytes):
     """
-    Advanced 'Alchemist' Engine (Discovery v2):
-    Lightweight but deep artistic texture injection.
-    Separates luminance and chroma to inject artistic patterns 
-    while preserving image structure.
+    Optimized Premium 4K Style Transfer Pipeline:
+    1. Neural Style Transfer (Magenta) - Capped to 1024px to ensure 4K limit.
+    2. Super Resolution (ESRGAN 4x Upscaling)
     """
-    start_time = time.time()
-    print("Executing Texture-Injection Alchemist Engine...")
+    load_models()
 
-    # Load images using PIL
-    content_pil = Image.open(io.BytesIO(content_image_bytes)).convert("RGB")
-    style_pil = Image.open(io.BytesIO(style_image_bytes)).convert("RGB")
+    # --- Step 1: Neural Style Transfer ---
+    # We cap content to 1024px. 4x upscale on 1024px = 4096px (True 4K).
+    # This prevents the server from hanging on massive images like 8K+.
+    content_tensor = preprocess_image(content_image_bytes, max_dim=1024)
+    style_tensor = preprocess_image(style_image_bytes, target_dim=(256, 256))
 
-    # Resize content to a max of 1024px for processing
-    max_dim = 1024
-    w, h = content_pil.size
-    if max(w, h) > max_dim:
-        scale = max_dim / max(w, h)
-        content_pil = content_pil.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+    print(f"Step 1: Applying Neural Style Transfer on {content_tensor.shape[1]}x{content_tensor.shape[2]} content...")
+    start_stylize = time.time()
     
-    # Resize style to match or be slightly smaller for texture extraction
-    style_pil = style_pil.resize((512, 512), Image.LANCZOS)
+    stylized_outputs = STYLE_MODEL(tf.constant(content_tensor), tf.constant(style_tensor))
+    stylized_image = stylized_outputs[0] # Output is float32 [0, 1]
     
-    # Convert to OpenCV BGR
-    content_cv = cv2.cvtColor(np.array(content_pil), cv2.COLOR_RGB2BGR)
-    style_cv = cv2.cvtColor(np.array(style_pil), cv2.COLOR_RGB2BGR)
+    print(f"Stylization complete in {time.time() - start_stylize:.2f}s")
 
-    # --- Step 1: Color Transfer (LAB Space) ---
-    # Working in LAB space prevents color bleeding and preserves lighting
-    content_lab = cv2.cvtColor(content_cv, cv2.COLOR_BGR2LAB).astype(np.float32)
-    style_lab = cv2.cvtColor(style_cv, cv2.COLOR_BGR2LAB).astype(np.float32)
-
-    l_c, a_c, b_c = cv2.split(content_lab)
-    l_s, a_s, b_s = cv2.split(style_lab)
-
-    # Mean and Std for color channels
-    def transfer_channel(src, tar):
-        s_mean, s_std = cv2.meanStdDev(src)
-        t_mean, t_std = cv2.meanStdDev(tar)
-        return ((tar - t_mean.flatten()) * (s_std.flatten() / (t_std.flatten() + 1e-5))) + s_mean.flatten()
-
-    a_new = transfer_channel(a_s, a_c)
-    b_new = transfer_channel(b_s, b_c)
-
-    # --- Step 2: Texture Extraction & Injection ---
-    # Extract high-frequency "brush strokes" from style luminance
-    l_s_blur = cv2.GaussianBlur(l_s, (21, 21), 0)
-    texture_mask = l_s - l_s_blur # High frequency component
+    # --- Step 2: Super Resolution (ESRGAN) ---
+    print("Step 2: Applying ESRGAN 4x Super Resolution...")
+    start_sr = time.time()
     
-    # Apply a painterly smoothing to content luminance
-    l_c_painterly = cv2.bilateralFilter(l_c, d=9, sigmaColor=75, sigmaSpace=75)
+    # Scale stylized image to [0, 255] for ESRGAN
+    sr_input = stylized_image * 255.0
     
-    # Resize texture mask to match content
-    texture_mask_resized = cv2.resize(texture_mask, (l_c.shape[1], l_c.shape[0]))
+    # hr_output is [Batch, Height*4, Width*4, 3]
+    hr_output = SUPER_RES_MODEL(sr_input)
     
-    # Inject texture into the content's luminance
-    # We use a weight (e.g. 0.4) to not overwhelm the image
-    l_final = l_c_painterly + (texture_mask_resized * 0.45)
-    l_final = np.clip(l_final, 0, 100) # L channel is 0-100 in LAB
-
-    # Merge logic fix: Ensure all channels are exact same shape and type
-    a_new = a_new.astype(np.float32)
-    b_new = b_new.astype(np.float32)
-    l_final = l_final.astype(np.float32)
-
-    # Combine back
-    merged_lab = cv2.merge([l_final, a_new, b_new])
-    merged_lab = np.clip(merged_lab, 0, 255).astype(np.uint8)
-    stylized_cv = cv2.cvtColor(merged_lab, cv2.COLOR_LAB2BGR)
-
-    # --- Step 3: Final Artist Polish ---
-    # Add a subtle 'edge enhancement' to make it feel more like a sketch/painting
-    gray = cv2.cvtColor(content_cv, cv2.COLOR_BGR2GRAY)
-    edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, 2)
-    edges_colored = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    print(f"Super Resolution complete in {time.time() - start_sr:.2f}s")
     
-    # Soft blend with stylized result
-    final_cv = cv2.addWeighted(stylized_cv, 0.92, edges_colored, 0.08, 0)
-
-    # --- Step 4: Premium 4K Export ---
-    output_pil = Image.fromarray(cv2.cvtColor(final_cv, cv2.COLOR_BGR2RGB))
-    target_upscale = 4096
-    w, h = output_pil.size
-    scale = target_upscale / max(w, h)
-    final_output = output_pil.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
-
-    print(f"Texture-Injection complete in {time.time() - start_time:.2f}s")
+    # --- Step 3: Post-processing ---
+    hr_output = tf.clip_by_value(hr_output, 0, 255)
+    hr_image_np = np.array(hr_output[0]).astype(np.uint8)
     
+    output_image = Image.fromarray(hr_image_np)
+
     # Save to buffer
     img_byte_arr = io.BytesIO()
-    final_output.save(img_byte_arr, format='PNG', quality=90)
+    output_image.save(img_byte_arr, format='PNG', quality=95)
     img_byte_arr.seek(0)
     
     return img_byte_arr.getvalue()
-
-def load_models():
-    """Dummy function for backward compatibility."""
-    print("Texture-Injection Alchemist Engine active.")
-    pass
