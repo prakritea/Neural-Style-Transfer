@@ -21,6 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {"message": "Welcome to Artisian Studio AI API", "health": "/api/health"}
+
 class UserAuth(BaseModel):
     username: str
     password: str

@@ -936,7 +936,8 @@ export default function Index() {
       formData.append("content_image", yourFile);
       formData.append("style_image", styleFile);
 
-      const response = await fetch("http://localhost:8000/api/style-transfer", {
+      const apiBase = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+      const response = await fetch(`${apiBase}/api/style-transfer`, {
         method: "POST",
         body: formData,
       });

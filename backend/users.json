@@ -10,5 +10,9 @@
     "hello@gmail.com": {
         "username": "hello@gmail.com",
         "password": "$2b$12$yMr3sJ1GLAqhm4/XbMdsoOQeqr5H//8SS.EUmnHR.t/qt7VsDCv9O"
+    },
+    "dummy1@gmail.com": {
+        "username": "dummy1@gmail.com",
+        "password": "$2b$12$BwR4.KhKbFiUW2NuXwrx/uvL8GaiHSfHBTg2dhQmALsfD85bvcVnK"
     }
 }
