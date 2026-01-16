@@ -1,99 +1,76 @@
 import io
 import time
 import numpy as np
-import tensorflow as tf
-import tensorflow_hub as hub
+import cv2
 from PIL import Image
-
-# Global variables to store models for reuse across requests
-STYLE_MODEL = None
-SUPER_RES_MODEL = None
-
-def load_models():
-    """Lazy-load the AI models to save memory during startup."""
-    global STYLE_MODEL, SUPER_RES_MODEL
-    if STYLE_MODEL is None:
-        start_time = time.time()
-        print("Loading Magenta Style Transfer model...")
-        STYLE_MODEL = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2')
-        print(f"Magenta model loaded in {time.time() - start_time:.2f}s")
-        
-    if SUPER_RES_MODEL is None:
-        start_time = time.time()
-        print("Loading ESRGAN Super Resolution model...")
-        SUPER_RES_MODEL = hub.load('https://tfhub.dev/captain-pool/esrgan-tf2/1')
-        print(f"ESRGAN model loaded in {time.time() - start_time:.2f}s")
-
-def preprocess_image(image_bytes, target_dim=None, max_dim=None):
-    """
-    Loads and prepares an image for model input.
-    Optionally resizes to target_dim or caps to max_dim while maintaining aspect ratio.
-    """
-    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    
-    if max_dim:
-        # Cap resolution while maintaining aspect ratio
-        w, h = img.size
-        if max(w, h) > max_dim:
-            if w > h:
-                new_w = max_dim
-                new_h = int(h * (max_dim / w))
-            else:
-                new_h = max_dim
-                new_w = int(w * (max_dim / h))
-            print(f"Capping resolution from {w}x{h} to {new_w}x{new_h}")
-            img = img.resize((new_w, new_h), Image.LANCZOS)
-    
-    if target_dim:
-        img = img.resize(target_dim, Image.LANCZOS)
-        
-    img_array = np.array(img).astype(np.float32)
-    # Add batch dimension and normalize to [0, 1]
-    return img_array[np.newaxis, ...] / 255.0
 
 def apply_style_transfer(content_image_bytes, style_image_bytes):
     """
-    Optimized Premium 4K Style Transfer Pipeline:
-    1. Neural Style Transfer (Magenta) - Capped to 1024px to ensure 4K limit.
-    2. Super Resolution (ESRGAN 4x Upscaling)
+    Lightweight 'Alchemist' Engine:
+    Efficient artistic stylization using OpenCV and NumPy.
+    Designed to run on < 512MB RAM (Free Tier).
     """
-    load_models()
+    start_time = time.time()
+    print("Executing Lightweight Alchemist Engine...")
 
-    # --- Step 1: Neural Style Transfer ---
-    # We cap content to 1024px. 4x upscale on 1024px = 4096px (True 4K).
-    # This prevents the server from hanging on massive images like 8K+.
-    content_tensor = preprocess_image(content_image_bytes, max_dim=1024)
-    style_tensor = preprocess_image(style_image_bytes, target_dim=(256, 256))
+    # Load images using PIL
+    content_pil = Image.open(io.BytesIO(content_image_bytes)).convert("RGB")
+    style_pil = Image.open(io.BytesIO(style_image_bytes)).convert("RGB")
 
-    print(f"Step 1: Applying Neural Style Transfer on {content_tensor.shape[1]}x{content_tensor.shape[2]} content...")
-    start_stylize = time.time()
+    # Resize content to a max of 1024px for processing while keeping aspect ratio
+    max_dim = 1024
+    w, h = content_pil.size
+    if max(w, h) > max_dim:
+        scale = max_dim / max(w, h)
+        content_pil = content_pil.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
     
-    stylized_outputs = STYLE_MODEL(tf.constant(content_tensor), tf.constant(style_tensor))
-    stylized_image = stylized_outputs[0] # Output is float32 [0, 1]
-    
-    print(f"Stylization complete in {time.time() - start_stylize:.2f}s")
+    # Convert to OpenCV BGR format
+    content_cv = cv2.cvtColor(np.array(content_pil), cv2.COLOR_RGB2BGR)
+    style_cv = cv2.cvtColor(np.array(style_pil), cv2.COLOR_RGB2BGR)
 
-    # --- Step 2: Super Resolution (ESRGAN) ---
-    print("Step 2: Applying ESRGAN 4x Super Resolution...")
-    start_sr = time.time()
+    # 1. Color Transfer: Map style colors to content
+    # We use a simple mean/std dev shift for efficiency
+    content_mean, content_std = cv2.meanStdDev(content_cv)
+    style_mean, style_std = cv2.meanStdDev(style_cv)
     
-    # Scale stylized image to [0, 255] for ESRGAN
-    sr_input = stylized_image * 255.0
-    
-    # hr_output is [Batch, Height*4, Width*4, 3]
-    hr_output = SUPER_RES_MODEL(sr_input)
-    
-    print(f"Super Resolution complete in {time.time() - start_sr:.2f}s")
-    
-    # --- Step 3: Post-processing ---
-    hr_output = tf.clip_by_value(hr_output, 0, 255)
-    hr_image_np = np.array(hr_output[0]).astype(np.uint8)
-    
-    output_image = Image.fromarray(hr_image_np)
+    content_cv = content_cv.astype(np.float32)
+    style_transfer = ((content_cv - content_mean.flatten()) * (style_std.flatten() / (content_std.flatten() + 1e-5))) + style_mean.flatten()
+    style_transfer = np.clip(style_transfer, 0, 255).astype(np.uint8)
 
+    # 2. Painterly Effect (Edge Preserving Smoothing)
+    # Using bilateral filter for a smooth, artistic look
+    stylized = cv2.bilateralFilter(style_transfer, d=9, sigmaColor=75, sigmaSpace=75)
+    
+    # 3. Enhance Edges (Pencil/Sketch feel)
+    gray = cv2.cvtColor(content_cv.astype(np.uint8), cv2.COLOR_BGR2GRAY)
+    edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, 2)
+    edges_colored = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    
+    # Blend stylization with edges
+    final_cv = cv2.addWeighted(stylized, 0.9, edges_colored, 0.1, 0)
+
+    # 4. Premium 4K Upscale (Lanczos)
+    output_pil = Image.fromarray(cv2.cvtColor(final_cv, cv2.COLOR_BGR2RGB))
+    # True 4K resize (4096px width or height)
+    target_upscale = 4096
+    w, h = output_pil.size
+    if w > h:
+        new_size = (target_upscale, int(h * (target_upscale / w)))
+    else:
+        new_size = (int(w * (target_upscale / h)), target_upscale)
+    
+    final_output = output_pil.resize(new_size, Image.LANCZOS)
+
+    print(f"Alchemist process complete in {time.time() - start_time:.2f}s")
+    
     # Save to buffer
     img_byte_arr = io.BytesIO()
-    output_image.save(img_byte_arr, format='PNG', quality=90) # Slightly reduced quality for speed
+    final_output.save(img_byte_arr, format='PNG', quality=85)
     img_byte_arr.seek(0)
     
     return img_byte_arr.getvalue()
+
+def load_models():
+    """Dummy function for backward compatibility."""
+    print("Alchemist Engine active (No model loading required).")
+    pass
