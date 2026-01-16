@@ -65,6 +65,11 @@ def apply_style_transfer(content_image_bytes, style_image_bytes):
     l_final = l_c_painterly + (texture_mask_resized * 0.45)
     l_final = np.clip(l_final, 0, 100) # L channel is 0-100 in LAB
 
+    # Merge logic fix: Ensure all channels are exact same shape and type
+    a_new = a_new.astype(np.float32)
+    b_new = b_new.astype(np.float32)
+    l_final = l_final.astype(np.float32)
+
     # Combine back
     merged_lab = cv2.merge([l_final, a_new, b_new])
     merged_lab = np.clip(merged_lab, 0, 255).astype(np.uint8)
