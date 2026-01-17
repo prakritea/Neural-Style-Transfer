@@ -138,8 +138,8 @@ export function Navigation() {
                   key={item.path}
                   to={item.path}
                   className={`text-foreground hover:text-primary transition-colors duration-200 ${location.pathname === item.path
-                      ? "text-primary font-medium"
-                      : ""
+                    ? "text-primary font-medium"
+                    : ""
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
